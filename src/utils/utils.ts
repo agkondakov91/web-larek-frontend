@@ -10,6 +10,10 @@ export function isEmpty(value: any): boolean {
     return value === null || value === undefined;
 }
 
+export function chekNumFormat(num: number, separator = ' ') {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+}
+
 export type SelectorCollection<T> = string | NodeListOf<Element> | T[];
 
 export function ensureAllElements<T extends HTMLElement>(selectorElement: SelectorCollection<T>, context: HTMLElement = document as unknown as HTMLElement): T[] {

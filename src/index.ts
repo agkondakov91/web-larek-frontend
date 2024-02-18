@@ -1,7 +1,7 @@
 import './scss/styles.scss';
 import { InteractionApi } from './components/base/InteractionApi';
 import { API_URL, CDN_URL } from './utils/constants';
-import { DataState, CatalogChangeEvent, Item } from './components/DataState';
+import { DataState, CatalogChangeEvent, IItem } from './components/DataState';
 import { EventEmitter } from './components/base/events';
 import { Page } from './components/Page';
 import { CardPreview, CardBasket } from './components/Card';
@@ -52,12 +52,12 @@ events.on<CatalogChangeEvent>('cards:initialization', () => {
 });
 
 //Открыть карточку
-events.on('card:open', (item: Item) => {
+events.on('card:open', (item: IItem) => {
 	appData.setPreview(item);
 });
 
-events.on('card:preview', (item: Item) => {
-	const showItem = (item: Item) => {
+events.on('card:preview', (item: IItem) => {
+	const showItem = (item: IItem) => {
 		const card = new CardPreview('card', cloneTemplate(cardPreview), {
 			onClick: () => {
 				if (!item.status) {
@@ -117,14 +117,14 @@ events.on('basket:open', () => {
 });
 
 //Добавить карточку в корзину
-events.on('card:addToBasket', (item: Item) => {
+events.on('card:addToBasket', (item: IItem) => {
 	item.status = true;
 	appData.addItemToOrder(item.id);
 	events.emit('basket:render');
 });
 
 //Удалить карточку из корзины
-events.on('card:deletFromBasket', (item: Item) => {
+events.on('card:deletFromBasket', (item: IItem) => {
 	item.status = false;
 	appData.deletItemFromOrder(item.id);
 	events.emit('basket:render');
@@ -233,27 +233,28 @@ events.on('basket:change', () => {
 
 //Открыть экран успеха
 events.on('order:submitContacts', () => {
-	appData.order.total = appData.getTotal();
-	interactionApi
-		.order(appData.order)
-		.then((res) => {
-			const success = new Success(cloneTemplate(successElem), {
-				onClick: () => {
-					modal.close();
-					appData.clearBasket();
-					events.emit('basket:change');
-				},
-			});
+    appData.order.total = appData.getTotal();
+    interactionApi
+        .order(appData.order)
+        .then((res) => {
+            appData.clearBasket();
+            const success = new Success(cloneTemplate(successElem), {
+                onClick: () => {
+                    modal.close();
+                },
+            });
 
-			modal.render({
-				content: success.render({
-					total: appData.getTotal().toString(),
-				}),
-			});
-		})
-		.catch((err) => {
-			console.error(err);
-		});
+            modal.render({
+                content: success.render({
+                    total: appData.order.total.toString(),
+                }),
+            });
+
+            events.emit('basket:change');
+        })
+        .catch((err) => {
+            console.error(err);
+        });
 });
 
 //Запрос к серверу

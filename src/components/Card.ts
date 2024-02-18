@@ -4,7 +4,7 @@ import { ICardActions, ICard, ICardPreview, ICardBasket } from '../types';
 
 export class Card<T> extends Component<ICard<T>> {
 	protected _title: HTMLElement;
-	protected _price?: HTMLElement;
+	protected _price: HTMLElement;
 	protected _button?: HTMLButtonElement;
 	protected _status: boolean;
 

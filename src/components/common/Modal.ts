@@ -18,7 +18,7 @@ export class Modal extends Component<IModal> {
 
 		this._closeButton.addEventListener('click', this.close.bind(this));
 		this.container.addEventListener('click', this.close.bind(this));
-		this._content.addEventListener('click', (evt) => evt.stopPropagation());
+        this._content.addEventListener('click', (evt) => evt.stopPropagation());
 
 		document.addEventListener('keydown', this.handleEscapeClose.bind(this));
 	}
@@ -37,7 +37,7 @@ export class Modal extends Component<IModal> {
 		this.content = null;
 		this.events.emit('modal:close');
 	}
-
+	
 	handleEscapeClose(evt: KeyboardEvent) {
 		if (evt.key === 'Escape') {
 			this.close();

@@ -20,12 +20,21 @@ export class OrderContacts extends Form<IOrderContacts> {
         let isValid = true;
         const formData = new FormData(this.container);
         for (const [field, value] of formData.entries()) {
-            if (!value) {
+            const strValue = value.toString();
+            if (!strValue) {
+                isValid = false;
+                this.events.emit('order:formContactsValid', { field, value: '' });
+            } else if (field === 'email' && !this.validateEmail(strValue)) {
                 isValid = false;
                 this.events.emit('order:formContactsValid', { field, value: '' });
             }
         }
         return isValid;
+    }
+
+    private validateEmail(email: string): boolean {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
     }
 
     protected onInputChange(field: keyof IOrderContacts, value: string) {

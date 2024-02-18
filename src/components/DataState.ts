@@ -8,23 +8,23 @@ import {
 } from '../types';
 
 export type CatalogChangeEvent = {
-	catalog: Item[];
+	catalog: IItem[];
 };
 
-export class Item extends Model<IProduct> {
-	about: string;
+export interface IItem {
+	about?: string;
 	description: string;
 	id: string;
 	image: string;
 	title: string;
 	price: number;
-	status: boolean;
+	status?: boolean;
 	category: string;
 }
 
 export class DataState extends Model<IDataState> {
-	basket: Item[];
-	catalog: Item[];
+	basket: IItem[];
+	catalog: IItem[];
 	order: IOrder = {
 		address: '',
 		payment: '',
@@ -37,11 +37,11 @@ export class DataState extends Model<IDataState> {
 	formErrors: FormErrors = {};
 
 	setCatalog(items: IProduct[]) {
-		this.catalog = items.map((item) => new Item(item, this.events));
+		this.catalog = items;
 		this.emitChanges('cards:initialization', { catalog: this.catalog });
 	}
 
-	setPreview(item: Item) {
+	setPreview(item: IItem) {
 		this.preview = item.id;
 		this.emitChanges('card:preview', item);
 	}
@@ -64,7 +64,7 @@ export class DataState extends Model<IDataState> {
 		);
 	}
 
-	getActiveItems(): Item[] {
+	getActiveItems(): IItem[] {
 		return this.catalog.filter((item) => item.status === true);
 	}
 
@@ -88,7 +88,7 @@ export class DataState extends Model<IDataState> {
 	validateOrderContacts() {
 		const errors: typeof this.formErrors = {};
 		if (!this.order.email) {
-			errors.email = 'Укажите email';
+			errors.email = 'Укажите верный email';
 		}
 		if (!this.order.phone) {
 			errors.phone = 'Укажите телефон';
@@ -99,8 +99,14 @@ export class DataState extends Model<IDataState> {
 	}
 
 	clearBasket() {
+		this.order.total = 0;
 		this.order.items.forEach((id) => {
-			this.deletItemFromOrder(id);
+			const item = this.catalog.find((it) => it.id === id);
+			if (item) {
+				this.order.total += item.price;
+			}
 		});
+	
+		this.order.items = [];
 	}
 }
